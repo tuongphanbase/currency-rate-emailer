@@ -811,17 +811,18 @@ def format_email_body(rates, vcb_rates, fawaz_rates, fxrates_rates, coingecko_ra
 
 # Color palette kept intentionally small: one accent per direction, neutral grays for structure.
 _HTML_COLORS = {
-    "up": "#15803d",
-    "down": "#dc2626",
-    "flat": "#6b7280",
-    "border": "#e5e7eb",
-    "muted": "#6b7280",
+    "up": "#1A7F4B",
+    "down": "#C6362B",
+    "flat": "#6E7581",
+    "border": "#E2E4E8",
+    "muted": "#596170",
     "card_bg": "#ffffff",
-    "warn_bg": "#fef3c7",
-    "warn_border": "#b45309",
-    "text": "#111827",
-    "accent": "#2563eb",
-    "page_bg": "#f6f7f9",
+    "warn_bg": "#FCF2DF",
+    "warn_border": "#9A5B06",
+    "text": "#1D2129",
+    "accent": "#3B5BDB",
+    "page_bg": "#F4F5F7",
+    "head_bg": "#F7F8FA",
 }
 
 # One accent color per section, used for the card's left border, title, and a tinted
@@ -829,16 +830,16 @@ _HTML_COLORS = {
 # from actual screenshots, not the marketing site): white cards, a single primary
 # blue, and small colorful pastel badge tags — not a dark theme.
 SECTION_ACCENTS = {
-    "best": "#2563eb",
-    "discrepancy": "#b45309",    # amber kept — this is a functional warning signal, not decoration
-    "compare": "#2563eb",
-    "market": "#2563eb",
-    "vcb": "#2563eb",
-    "fawaz": "#2563eb",
-    "fxrates": "#2563eb",
-    "coingecko": "#2563eb",
-    "conversions": "#2563eb",
-    "trend": "#2563eb",
+    "best": "#3B5BDB",
+    "discrepancy": "#9A5B06",    # amber kept — this is a functional warning signal, not decoration
+    "compare": "#3B5BDB",
+    "market": "#3B5BDB",
+    "vcb": "#3B5BDB",
+    "fawaz": "#3B5BDB",
+    "fxrates": "#3B5BDB",
+    "coingecko": "#3B5BDB",
+    "conversions": "#3B5BDB",
+    "trend": "#3B5BDB",
 }
 
 # Brightened versions of each accent, used ONLY for title/header text color in dark
@@ -846,7 +847,7 @@ SECTION_ACCENTS = {
 # several (vcb, fawaz, conversions, compare, market, best, trend) fall below WCAG AA
 # (4.5:1) as text on a dark card background, verified by computing actual contrast
 # ratios — not just eyeballed. These are the minimum white-blend needed per accent to
-# clear 4.5:1 against the #1e1e1e dark card background used below.
+# clear 4.5:1 against the #1D2129 dark card background used below.
 # Small color dot shown next to each currency code, roughly evoking each currency's
 # home flag/brand without reproducing any actual flag imagery.
 
@@ -854,7 +855,7 @@ def _accent_of(code):
     # Previously varied by currency (evoking flag colors); simplified to one
     # neutral gray dot for a restrained, non-"rainbow" look, matching the
     # single-accent design direction used throughout the rest of the email.
-    return "#6b7280"
+    return "#6E7581"
 
 
 def _tint(hex_color, amount=0.88):
@@ -886,22 +887,20 @@ def _html_escape(s):
 
 
 def _html_label(code):
-    """Currency code + a small colored dot + symbol, e.g. '🔵 USD $'."""
+    """Currency code + symbol, e.g. 'USD $'."""
     sym = CURRENCY_SYMBOLS.get(code)
-    dot_color = _accent_of(code)
-    dot = f'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:{dot_color};margin-right:6px;"></span>'
     if not sym:
-        return f'{dot}{_html_escape(code)}'
-    return f'{dot}{_html_escape(code)} <span style="color:{_HTML_COLORS["muted"]};">{_html_escape(sym)}</span>'
+        return f'<strong>{_html_escape(code)}</strong>'
+    return f'<strong>{_html_escape(code)}</strong> <span style="color:{_HTML_COLORS["muted"]};">{_html_escape(sym)}</span>'
 
 
 def _html_change_span(pct):
     if pct > 0:
-        color, bg, arrow = _HTML_COLORS["up"], "#dcfce7", "&#9650;"
+        color, bg, arrow = _HTML_COLORS["up"], "#E5F3EB", "&#9650;"
     elif pct < 0:
-        color, bg, arrow = _HTML_COLORS["down"], "#fee2e2", "&#9660;"
+        color, bg, arrow = _HTML_COLORS["down"], "#FBE9E7", "&#9660;"
     else:
-        color, bg, arrow = _HTML_COLORS["flat"], "#f1f3f5", "&#9679;"
+        color, bg, arrow = _HTML_COLORS["flat"], "#F1F2F4", "&#9679;"
     return (
         f'<span style="color:{color};background:{bg};font-weight:600;padding:2px 8px;'
         f'border-radius:10px;font-size:13px;display:inline-block;">{arrow} {pct:+.2f}%</span>'
@@ -955,13 +954,13 @@ def _html_source_table(rows, headers, accent=None, accent_key=None, scroll_min_w
     than the alternative (the client force-shrinking every column to illegible
     widths and wrapping text mid-word, which looks broken).
     """
-    header_bg = _tint(accent, 0.90) if accent else "transparent"
-    header_color = accent if accent else _HTML_COLORS["muted"]
+    # Neutral header row whatever the section: colour is kept for the numbers.
+    header_bg = _HTML_COLORS["head_bg"]
+    header_color = _HTML_COLORS["muted"]
     header_class = f"crx-accent-{accent_key}" if accent_key else ""
     th = "".join(
-        f'<th class="crx-thead {header_class}" style="text-align:left;padding:6px 10px;border-bottom:2px solid {_HTML_COLORS["border"]};'
-        f'background:{header_bg};font-size:12px;color:{header_color};font-weight:700;'
-        f'text-transform:uppercase;letter-spacing:.03em;white-space:nowrap;">{h}</th>'
+        f'<th class="crx-thead {header_class}" style="text-align:left;padding:7px 10px;border-bottom:1px solid {_HTML_COLORS["border"]};'
+        f'background:{header_bg};font-size:12px;color:{header_color};font-weight:600;white-space:nowrap;">{h}</th>'
         for h in headers
     )
     body_rows = ""
@@ -1003,13 +1002,10 @@ def _html_card(title_html, inner_html, source_html, accent=None, accent_key=None
     border = border or _HTML_COLORS["border"]
     card_class = "crx-card-warn" if is_warn else "crx-card"
     title_class = f"crx-accent-{accent_key}" if accent_key else ""
-    left_border = f"4px solid {accent}" if accent else f"1px solid {border}"
-    title_color = accent if accent else _HTML_COLORS["text"]
-    dot = (
-        f'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;'
-        f'background:{accent};margin-right:8px;vertical-align:middle;"></span>'
-        if accent else ""
-    )
+    # Plain bordered card with a dark title; only the warning card keeps its amber edge.
+    left_border = f"4px solid {border}" if is_warn else f"1px solid {border}"
+    title_color = _HTML_COLORS["text"]
+    dot = ""
     desc_html = (
         f'<div class="crx-muted" style="font-size:12.5px;color:{_HTML_COLORS["muted"]};margin-bottom:10px;line-height:1.4;">'
         f'{_html_escape(description)}</div>'
@@ -1018,9 +1014,8 @@ def _html_card(title_html, inner_html, source_html, accent=None, accent_key=None
     return (
         f'<div class="{card_class}" style="border:1px solid {border};border-left:{left_border};border-radius:8px;'
         f'padding:16px 18px;margin-bottom:16px;background:{bg};">'
-        f'<div class="{title_class}" style="font-size:15px;font-weight:700;color:{title_color};margin-bottom:2px;">{dot}{title_html}</div>'
-        f'<div class="crx-muted" style="font-size:11px;color:{_HTML_COLORS["muted"]};margin-bottom:4px;'
-        f'text-transform:uppercase;letter-spacing:.03em;">{source_html}</div>'
+        f'<div class="{title_class}" style="font-size:15px;font-weight:600;color:{title_color};margin-bottom:2px;">{dot}{title_html}</div>'
+        f'<div class="crx-muted" style="font-size:12px;color:{_HTML_COLORS["muted"]};margin-bottom:6px;">{source_html}</div>'
         f"{desc_html}"
         f"{inner_html}</div>"
     )
@@ -1058,14 +1053,13 @@ def format_email_html(rates, vcb_rates, fawaz_rates, fxrates_rates, coingecko_ra
 
     parts = []
     parts.append(
-        f'<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;'
+        f'<div style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif;'
         f'max-width:800px;margin:0 auto;color:{C["text"]};background:{C["page_bg"]};padding:20px;">'
     )
     parts.append(
-        f'<div style="background:#1d4ed8;background:linear-gradient(135deg,#1d4ed8,#2563eb);'
-        f'border-radius:10px;padding:20px 22px;margin-bottom:20px;">'
-        f'<h1 style="font-size:21px;margin:0 0 4px;color:#ffffff;">&#128176; Tỷ giá quy đổi sang VND</h1>'
-        f'<div style="font-size:13px;color:#dbeafe;">'
+        f'<div style="padding:4px 2px 16px;">'
+        f'<div style="font-size:20px;font-weight:600;line-height:1.3;color:{C["text"]};">Tỷ giá quy đổi sang VND</div>'
+        f'<div style="font-size:13px;color:{C["muted"]};margin-top:2px;">'
         f"{now_vn().strftime('%Y-%m-%d %H:%M')} (giờ Việt Nam)</div>"
         f'</div>'
     )
@@ -1098,10 +1092,10 @@ def format_email_html(rates, vcb_rates, fawaz_rates, fxrates_rates, coingecko_ra
                 f'</tr>'
             )
         parts.append(
-            f'<div class="crx-summary" style="background:{_tint(SECTION_ACCENTS["market"], 0.94)};border-radius:10px;'
-            f'padding:14px 18px 6px;margin-bottom:20px;">'
-            f'<div class="crx-muted" style="font-size:12px;font-weight:700;color:{_HTML_COLORS["muted"]};text-transform:uppercase;'
-            f'letter-spacing:.03em;margin-bottom:6px;">Xem nhanh &middot; tỷ giá trung bình thị trường</div>'
+            f'<div class="crx-summary" style="background:{_HTML_COLORS["card_bg"]};border:1px solid {_HTML_COLORS["border"]};border-radius:8px;'
+            f'padding:14px 18px 6px;margin-bottom:16px;">'
+            f'<div style="font-size:15px;font-weight:600;color:{_HTML_COLORS["text"]};margin-bottom:2px;">Xem nhanh</div>'
+            f'<div class="crx-muted" style="font-size:12px;color:{_HTML_COLORS["muted"]};margin-bottom:6px;">Tỷ giá trung bình thị trường</div>'
             f'<div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">'
             f'<table style="border-collapse:collapse;min-width:480px;">{summary_rows}</table>'
             f'</div>'
@@ -1385,11 +1379,11 @@ def build_alert_body_html(errors):
         for name, error in errors
     )
     inner = (
-        f'<div style="font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;'
+        f'<div style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,sans-serif;'
         f'max-width:800px;margin:0 auto;color:{C["text"]};background:{C["page_bg"]};padding:20px;">'
-        f'<div style="background:{C["down"]};border-radius:10px;padding:20px 22px;margin-bottom:20px;">'
-        f'<h1 style="font-size:20px;margin:0 0 4px;color:#ffffff;">&#128680; Cảnh báo: Tất cả nguồn tỷ giá đều lỗi</h1>'
-        f'<div style="font-size:13px;color:#fee2e2;">{now_vn().strftime("%Y-%m-%d %H:%M")} (giờ Việt Nam)</div>'
+        f'<div style="padding:4px 2px 16px;">'
+        f'<div style="font-size:20px;font-weight:600;line-height:1.3;color:{C["down"]};">Cảnh báo: tất cả nguồn tỷ giá đều lỗi</div>'
+        f'<div style="font-size:13px;color:{C["muted"]};margin-top:2px;">{now_vn().strftime("%Y-%m-%d %H:%M")} (giờ Việt Nam)</div>'
         f'</div>'
         f'<div class="crx-card" style="border:1px solid {C["border"]};border-radius:8px;padding:16px 18px;background:{C["card_bg"]};">'
         f'<div style="font-size:14px;margin-bottom:12px;">Cả {len(errors)} nguồn dữ liệu đều gặp lỗi trong lần chạy này, '
@@ -1473,7 +1467,7 @@ def cmd_generate():
         ]
         body = build_alert_body_text(errors)
         html_body = build_alert_body_html(errors)
-        subject = f"🚨 CẢNH BÁO: Tất cả nguồn tỷ giá đều lỗi - {now_vn().strftime('%Y-%m-%d %H:%M')}"
+        subject = f"Cảnh báo: tất cả nguồn tỷ giá đều lỗi - {now_vn().strftime('%Y-%m-%d %H:%M')}"
         with open(EMAIL_BODY_FILE, "w") as f:
             f.write(body)
         with open(EMAIL_HTML_FILE, "w") as f:
